@@ -18,7 +18,7 @@ const instructions = Platform.select({
     'Shake or press menu button for dev menu',
 });
 
-export default class App extends Component {
+export default class AppAndroid extends Component {
     componentDidMount = async () => {
         const enabled = await firebase.messaging().hasPermission();
         if (enabled) {
@@ -34,6 +34,30 @@ export default class App extends Component {
             }
         }
 
+        const notificationOpen: NotificationOpen = await firebase.notifications().getInitialNotification();
+        if (notificationOpen) {
+            // App was opened by a notification
+            // Get the action triggered by the notification being opened
+            const action = notificationOpen.action;
+            // Get information about the notification that was opened
+            const notification: Notification = notificationOpen.notification;
+            if (notification.body!==undefined) {
+                alert(notification.body);
+            } else {
+                var seen = [];
+                alert(JSON.stringify(notification.data, function(key, val) {
+                    if (val != null && typeof val == "object") {
+                        if (seen.indexOf(val) >= 0) {
+                            return;
+                        }
+                        seen.push(val);
+                    }
+                    return val;
+                }));
+            }
+            firebase.notifications().removeDeliveredNotification(notification.notificationId);
+        }
+
         const channel = new firebase.notifications.Android.Channel('test-channel', 'Test Channel', firebase.notifications.Android.Importance.Max)
             .setDescription('My apps test channel');
 
@@ -45,6 +69,8 @@ export default class App extends Component {
         });
         this.notificationListener = firebase.notifications().onNotification((notification: Notification) => {
             // Process your notification as required
+            console.log('get Message');
+            console.log(notification);
             notification
                 .android.setChannelId('test-channel')
                 .android.setSmallIcon('ic_launcher');
@@ -107,21 +133,20 @@ export default class App extends Component {
             //     .android.setColor('#000000') // you can set a color here
             //     .android.setPriority(firebase.notifications.Android.Priority.High);
             if (notification.body!==undefined) {
-                // alert(notification.body);
-                var seen = [];
-                alert(JSON.stringify(notificationOpen, function(key, val) {
-                    if (val != null && typeof val == "object") {
-                        if (seen.indexOf(val) >= 0) {
-                            return;
-                        }
-                        seen.push(val);
-                    }
-                    return val;
-                }));
-                firebase.notifications().removeDeliveredNotification(notification.notificationId);
+                alert(notification.body);
+                // var seen = [];
+                // alert(JSON.stringify(notification.data, function(key, val) {
+                //     if (val != null && typeof val == "object") {
+                //         if (seen.indexOf(val) >= 0) {
+                //             return;
+                //         }
+                //         seen.push(val);
+                //     }
+                //     return val;
+                // }));
             } else {
                 var seen = [];
-                alert(JSON.stringify(notification, function(key, val) {
+                alert(JSON.stringify(notification.data, function(key, val) {
                     if (val != null && typeof val == "object") {
                         if (seen.indexOf(val) >= 0) {
                             return;
@@ -131,19 +156,8 @@ export default class App extends Component {
                     return val;
                 }));
             }
+            firebase.notifications().removeDeliveredNotification(notification.notificationId);
         });
-
-
-        // const notificationOpen: NotificationOpen = await firebase.notifications().getInitialNotification();
-        // if (notificationOpen) {
-        //     // App was opened by a notification
-        //     // Get the action triggered by the notification being opened
-        //     const action = notificationOpen.action;
-        //     // Get information about the notification that was opened
-        //     const notification: Notification = notificationOpen.notification;
-        //     firebase.notifications().removeDeliveredNotification(notification.notificationId);
-        //     alert(notification.body);
-        // }
     }
 
     componentWillUnmount() {

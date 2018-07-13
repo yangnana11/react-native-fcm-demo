@@ -1,10 +1,10 @@
 /** @format */
 
 import {AppRegistry} from 'react-native';
-import App from './App';
+import AppAndroid from './App';
 import {name as appName} from './app.json';
 import bgActions from './bgActions';
 
-AppRegistry.registerComponent(appName, () => App);
+AppRegistry.registerComponent(appName, () => AppAndroid);
 
-// AppRegistry.registerHeadlessTask('RNFirebaseBackgroundNotificationAction', () => bgActions);
+// AppRegistry.registerHeadlessTask('RNFirebaseBackgroundMessage', () => bgActions);
