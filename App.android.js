@@ -63,6 +63,9 @@ export default class AppAndroid extends Component {
 
         // Create the channel
         firebase.notifications().android.createChannel(channel);
+
+        firebase.messaging().subscribeToTopic('news1');
+
         this.notificationDisplayedListener = firebase.notifications().onNotificationDisplayed((notification: Notification) => {
             // Process your notification as required
             // ANDROID: Remote notifications do not contain the channel ID. You will have to specify this manually if you'd like to re-display the notification.

@@ -7,7 +7,7 @@
  */
 
 import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View} from 'react-native';
+import {Platform, StyleSheet, Text, View, NetInfo} from 'react-native';
 import firebase from 'react-native-firebase';
 import type { Notification, NotificationOpen } from 'react-native-firebase';
 
@@ -32,6 +32,18 @@ export default class App extends Component {
                 // User has rejected permissions
                 alert('No permission for notification');
             }
+        }
+
+        const fcmToken = await firebase.messaging().getToken()
+        if (fcmToken) {
+          alert(fcmToken);
+          try {
+            fetch('http://nextico_api_nana.devglos.com/v1/device/' + fcmToken + '/' + Platform.OS + '_test', {
+              method: 'POST'
+            })
+          } catch (e) {
+            console.log(e)
+          }
         }
 
         const notificationOpen: NotificationOpen = await firebase.notifications().getInitialNotification();
@@ -63,6 +75,9 @@ export default class App extends Component {
 
         // Create the channel
         firebase.notifications().android.createChannel(channel);
+
+        firebase.messaging().subscribeToTopic('news1');
+
         this.notificationDisplayedListener = firebase.notifications().onNotificationDisplayed((notification: Notification) => {
             // Process your notification as required
             // ANDROID: Remote notifications do not contain the channel ID. You will have to specify this manually if you'd like to re-display the notification.
